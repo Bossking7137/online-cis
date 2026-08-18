@@ -1,0 +1,4 @@
+.env
+.fh_cache/
+node_modules/
+*.log
