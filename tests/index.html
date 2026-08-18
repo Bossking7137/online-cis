@@ -20,6 +20,7 @@
     // Import every test file (added as tasks complete), then run.
     await import('./schema.test.js');
     await import('./util.test.js');
+    await import('./validation.test.js');
     const { runAll } = await import('./_harness.js');
     await runAll();
   </script>
