@@ -1,0 +1,305 @@
+import { HEADER, SECTIONS, CONSENT_TEXT, CONSENT_BULLETS } from './schema.js';
+import { validateForGenerate } from './validation.js';
+import { createState, saveState, loadState, clearState } from './state.js';
+import { SignaturePad } from './signature.js';
+import { buildPdf } from './pdf.js';
+import { sharePdf } from './share.js';
+import { sanitizeFilename, isBlank, displayValue, todayISO } from './util.js';
+
+const state = loadState(localStorage);
+
+const STEPS = [
+  { kind: 'intro' },
+  ...SECTIONS.map((section) => ({ kind: 'section', section })),
+  { kind: 'review' },
+];
+
+let currentStep = 0;
+
+const app = document.getElementById('app');
+const bar = document.getElementById('bar');
+
+const sigModal = document.getElementById('sigModal');
+const sigCanvas = document.getElementById('sigCanvas');
+const sigClearBtn = document.getElementById('sigClear');
+const sigSaveBtn = document.getElementById('sigSave');
+let sigPad = null;
+
+function getSigPad() {
+  if (!sigPad) sigPad = new SignaturePad(sigCanvas);
+  return sigPad;
+}
+
+sigClearBtn.addEventListener('click', () => {
+  getSigPad().clear();
+});
+
+sigSaveBtn.addEventListener('click', async () => {
+  const pad = getSigPad();
+  if (!pad.isEmpty()) {
+    state.signature = await pad.toPngBytes();
+  }
+  sigModal.close();
+  renderStep(currentStep);
+});
+
+function openSignatureModal() {
+  getSigPad();
+  sigModal.showModal();
+}
+
+let saveTimer = null;
+function debouncedSave() {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveState(state, localStorage), 300);
+}
+
+function el(tag, attrs = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v === undefined) continue;
+    if (k === 'class') node.className = v;
+    else if (k === 'text') node.textContent = v;
+    else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v);
+  }
+  for (const child of [].concat(children)) {
+    if (child == null) continue;
+    node.appendChild(typeof child === 'string' ? document.createTextNode(child) : child);
+  }
+  return node;
+}
+
+function renderField(fld) {
+  const wrap = el('div', { class: 'field' });
+
+  if (fld.type === 'checkbox') {
+    // Consent block: read-only text + bullets, then the checkbox.
+    const who = state.fields.auth_name || state.fields.full_names || '[name]';
+    const consentBlock = el('div', { class: 'consent-block' }, [
+      el('p', { text: CONSENT_TEXT.replace('{name}', who) }),
+      el('ul', {}, CONSENT_BULLETS.map((b) => el('li', { text: b }))),
+    ]);
+    wrap.appendChild(consentBlock);
+
+    const checkboxRow = el('div', { class: 'checkbox-row' });
+    const checkbox = el('input', { type: 'checkbox', id: fld.id });
+    checkbox.checked = state.fields[fld.id] === true;
+    checkbox.addEventListener('change', () => {
+      state.fields[fld.id] = checkbox.checked;
+      debouncedSave();
+    });
+    const label = el('label', { for: fld.id, text: fld.label });
+    checkboxRow.appendChild(checkbox);
+    checkboxRow.appendChild(label);
+    wrap.appendChild(checkboxRow);
+    return wrap;
+  }
+
+  const label = el('label', { for: fld.id, text: fld.label });
+  wrap.appendChild(label);
+
+  if (fld.type === 'textarea') {
+    const textarea = el('textarea', { id: fld.id });
+    textarea.value = state.fields[fld.id] || '';
+    textarea.addEventListener('input', () => {
+      state.fields[fld.id] = textarea.value;
+      debouncedSave();
+    });
+    wrap.appendChild(textarea);
+    return wrap;
+  }
+
+  if (fld.type === 'choice') {
+    const row = el('div', { class: 'chip-row' });
+    for (const opt of fld.options || []) {
+      const chip = el('button', { type: 'button', class: 'chip', text: opt });
+      if (state.fields[fld.id] === opt) chip.classList.add('selected');
+      chip.addEventListener('click', () => {
+        state.fields[fld.id] = opt;
+        debouncedSave();
+        for (const c of row.children) c.classList.remove('selected');
+        chip.classList.add('selected');
+      });
+      row.appendChild(chip);
+    }
+    wrap.appendChild(row);
+    return wrap;
+  }
+
+  // text / email / tel / date
+  const input = el('input', { type: fld.type, id: fld.id });
+  input.value = state.fields[fld.id] || '';
+  input.addEventListener('input', () => {
+    state.fields[fld.id] = input.value;
+    debouncedSave();
+  });
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function renderIntro() {
+  const wrap = el('div');
+  wrap.appendChild(el('h2', { class: 'step-title', text: HEADER.title }));
+  wrap.appendChild(el('p', { text: HEADER.company }));
+  wrap.appendChild(el('p', { class: 'hint', text: HEADER.reg }));
+  wrap.appendChild(el('p', { class: 'hint', text: HEADER.exemption }));
+  wrap.appendChild(el('p', { class: 'hint', text: HEADER.address }));
+  wrap.appendChild(el('p', { class: 'hint', text: HEADER.contact }));
+  wrap.appendChild(el('p', {
+    text: 'This form takes a few minutes. Your progress is saved automatically on this device.',
+  }));
+  return wrap;
+}
+
+function renderSection(section) {
+  const wrap = el('div');
+  wrap.appendChild(el('h2', { class: 'step-title', text: section.title }));
+  for (const fld of section.fields) {
+    wrap.appendChild(renderField(fld));
+  }
+  return wrap;
+}
+
+function fieldLabelFor(id) {
+  for (const section of SECTIONS) {
+    const fld = section.fields.find((f) => f.id === id);
+    if (fld) return fld.label;
+  }
+  return id;
+}
+
+function renderReview() {
+  const wrap = el('div');
+  wrap.appendChild(el('h2', { class: 'step-title', text: 'Review & submit' }));
+
+  const summary = el('div', { class: 'summary' });
+  for (const section of SECTIONS) {
+    for (const fld of section.fields) {
+      if (fld.type === 'checkbox') continue;
+      const value = state.fields[fld.id];
+      if (isBlank(value)) continue;
+      summary.appendChild(el('div', { class: 'summary-row' }, [
+        el('span', { class: 'k', text: fieldLabelFor(fld.id) }),
+        el('span', { class: 'v', text: displayValue(value) }),
+      ]));
+    }
+  }
+  wrap.appendChild(summary);
+
+  // Signature capture
+  const sigSection = el('div', { class: 'field' });
+  sigSection.appendChild(el('label', { text: 'Signature' }));
+  const signed = !!state.signature;
+  sigSection.appendChild(el('p', {
+    class: 'sig-status',
+    text: signed ? 'Signature captured.' : 'No signature yet.',
+  }));
+  const sigBtn = el('button', {
+    type: 'button',
+    text: signed ? 'Re-sign' : 'Sign now',
+    onclick: openSignatureModal,
+  });
+  sigSection.appendChild(sigBtn);
+  wrap.appendChild(sigSection);
+
+  const v = validateForGenerate(state);
+
+  if (!v.ok) {
+    const errBox = el('div', { class: 'errors' });
+    errBox.appendChild(el('p', { text: 'Please fix the following before generating the PDF:' }));
+    const list = el('ul', {}, v.errors.map((msg) => el('li', { text: msg })));
+    errBox.appendChild(list);
+    wrap.appendChild(errBox);
+  }
+
+  const actions = el('div', { class: 'field' });
+  const generateBtn = el('button', {
+    type: 'button',
+    class: 'primary',
+    text: 'Generate PDF',
+    disabled: v.ok ? undefined : 'disabled',
+  });
+  if (!v.ok) generateBtn.disabled = true;
+  generateBtn.addEventListener('click', async () => {
+    generateBtn.disabled = true;
+    generateBtn.textContent = 'Generating…';
+    try {
+      const bytes = await buildPdf(state, state.signature);
+      const name = sanitizeFilename(state.fields.business_name || state.fields.full_names);
+      const filename = 'AOK-CIS-' + name + '-' + todayISO() + '.pdf';
+      const waMessage = 'Hello, attached is my completed Africa Origin Khumoetsile Client Information Sheet.';
+      await sharePdf(bytes, filename, waMessage);
+    } finally {
+      generateBtn.disabled = false;
+      generateBtn.textContent = 'Generate PDF';
+    }
+  });
+  actions.appendChild(generateBtn);
+  wrap.appendChild(actions);
+
+  const startOver = el('div', { class: 'field' });
+  const startOverBtn = el('button', {
+    type: 'button',
+    text: 'Start over',
+    onclick: () => {
+      if (confirm('This clears everything you entered. Continue?')) {
+        clearState(localStorage);
+        location.reload();
+      }
+    },
+  });
+  startOver.appendChild(startOverBtn);
+  wrap.appendChild(startOver);
+
+  return wrap;
+}
+
+function renderNav() {
+  const nav = el('div', { class: 'bottom-nav' });
+
+  const backBtn = el('button', { type: 'button', text: 'Back' });
+  backBtn.disabled = currentStep === 0;
+  backBtn.addEventListener('click', () => {
+    if (currentStep > 0) {
+      currentStep -= 1;
+      renderStep(currentStep);
+    }
+  });
+  nav.appendChild(backBtn);
+
+  const isLast = currentStep === STEPS.length - 1;
+  const nextBtn = el('button', {
+    type: 'button',
+    class: 'primary',
+    text: isLast ? 'Done' : 'Next',
+  });
+  nextBtn.addEventListener('click', () => {
+    if (currentStep < STEPS.length - 1) {
+      currentStep += 1;
+      renderStep(currentStep);
+    }
+  });
+  if (isLast) nextBtn.disabled = true;
+  nav.appendChild(nextBtn);
+
+  return nav;
+}
+
+function renderStep(i) {
+  currentStep = i;
+  app.innerHTML = '';
+
+  const step = STEPS[i];
+  let content;
+  if (step.kind === 'intro') content = renderIntro();
+  else if (step.kind === 'section') content = renderSection(step.section);
+  else content = renderReview();
+
+  app.appendChild(content);
+  app.appendChild(renderNav());
+
+  bar.style.width = ((i + 1) / STEPS.length) * 100 + '%';
+}
+
+renderStep(0);
