@@ -221,21 +221,30 @@ function renderReview() {
     disabled: v.ok ? undefined : 'disabled',
   });
   if (!v.ok) generateBtn.disabled = true;
+  const genError = el('p', { class: 'errors', text: '' });
+  genError.style.display = 'none';
   generateBtn.addEventListener('click', async () => {
     generateBtn.disabled = true;
     generateBtn.textContent = 'Generating…';
+    genError.style.display = 'none';
+    genError.textContent = '';
     try {
       const bytes = await buildPdf(state, state.signature);
       const name = sanitizeFilename(state.fields.business_name || state.fields.full_names);
       const filename = 'AOK-CIS-' + name + '-' + todayISO() + '.pdf';
       const waMessage = 'Hello, attached is my completed Africa Origin Khumoetsile Client Information Sheet.';
       await sharePdf(bytes, filename, waMessage);
+    } catch (err) {
+      genError.textContent = 'Something went wrong generating your PDF. Please try again. '
+        + ((err && err.message) ? '(' + err.message + ')' : '');
+      genError.style.display = '';
     } finally {
       generateBtn.disabled = false;
       generateBtn.textContent = 'Generate PDF';
     }
   });
   actions.appendChild(generateBtn);
+  actions.appendChild(genError);
   wrap.appendChild(actions);
 
   const startOver = el('div', { class: 'field' });

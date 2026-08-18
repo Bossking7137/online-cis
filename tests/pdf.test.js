@@ -24,3 +24,23 @@ test('buildPdf tolerates a signature PNG', async () => {
   const bytes = await buildPdf(state, png);
   assert.ok(bytes.length > 1000);
 });
+
+test('buildPdf handles very long field values without throwing (wraps instead of overflowing)', async () => {
+  const longState = {
+    fields: {
+      business_name: 'Acme Investment Holdings and General Trading Proprietary Limited (Formerly Known As The Botswana Southern Region Cooperative Society)',
+      business_address: 'Plot 12345, Extension 9, Along The Old Lobatse Road Next To The New Shopping Complex, Phakalane, Gaborone, Botswana, Private Bag 00123',
+      res_address: 'Line one of a very long residential address that should wrap onto several lines\nLine two with more detail about the location and nearby landmarks\nLine three, the final line of this multi-line address value',
+      cell: '71234567',
+      consent: true,
+      full_names: 'Jane Doe',
+      marital_status: 'Married COP',
+      account_type: 'Savings',
+    },
+    signature: null,
+  };
+  const bytes = await buildPdf(longState, null);
+  assert.ok(bytes instanceof Uint8Array);
+  assert.ok(bytes.length > 1000);
+  assert.equal(String.fromCharCode(...bytes.slice(0, 4)), '%PDF');
+});
