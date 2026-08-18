@@ -20,62 +20,65 @@ const SIZE = 10;                     // default answer font size
 const LINE_DROP = 11;                // vertical gap when a value wraps to a new line
 
 // page: 0-based · x,y: baseline start · maxW: width budget · size: optional
+// Coordinates measured from "AOK Client Information application Version 3".
 const MAP = {
   // ---- SHEET 1 ----
-  business_name:    { page: 0, x: 200, y: 452.8, maxW: 300 },
-  uin:              { page: 0, x: 200, y: 438.3, maxW: 145 },
-  business_address: { page: 0, x: 200, y: 423.8, maxW: 300, contX: 75, contY: 409.4, contW: 425 },
+  referee_name:     { page: 0, x: 138, y: 551.6, maxW: 285 },
+  referee_contact:  { page: 0, x: 154, y: 532.9, maxW: 258 },
+  business_name:    { page: 0, x: 159, y: 490.0, maxW: 258 },
+  uin:              { page: 0, x: 157, y: 471.4, maxW: 260 },
+  business_address: { page: 0, x: 150, y: 452.7, maxW: 262, contX: 56, contY: 434.1, contW: 390 },
   // consent "I ______ duly authorised…" — the authorised person's name
-  consent_name:     { page: 0, x: 84,  y: 353.6, maxW: 250, size: 9 },
-  consent_date:     { page: 0, x: 104, y: 221.8, maxW: 100 },
-  auth_name:        { page: 0, x: 210, y: 195.4, maxW: 265 },
+  consent_name:     { page: 0, x: 60,  y: 372.5, maxW: 246, size: 9 },
+  consent_date:     { page: 0, x: 77,  y: 230.9, maxW: 356 },
+  auth_name:        { page: 0, x: 182, y: 201.3, maxW: 240 },
 
   // ---- SHEET 2 ----
-  title:            { page: 1, x: 205, y: 775.7, size: 9 },   // choice, appended right of options
-  full_names:       { page: 1, x: 100, y: 755.1, maxW: 388 },
-  marital_status:   { page: 1, x: 393, y: 734.7, maxW: 95, size: 8 }, // choice
-  maiden_name:      { page: 1, x: 185, y: 714.2, maxW: 300 },
-  dob:              { page: 1, x: 113, y: 693.7, maxW: 128 },
-  omang:            { page: 1, x: 345, y: 693.7, maxW: 143 },
-  nationality:      { page: 1, x: 100, y: 673.2, maxW: 218 },
-  cell:             { page: 1, x: 84,  y: 611.7, maxW: 160 },
-  tel_work:         { page: 1, x: 140, y: 591.2, maxW: 155 },
-  tel_home:         { page: 1, x: 350, y: 591.2, maxW: 138 },
-  email:            { page: 1, x: 80,  y: 570.8, maxW: 278 },
-  res_address:      { page: 1, x: 130, y: 550.3, maxW: 295 },
-  occupancy:        { page: 1, x: 447, y: 552.0, maxW: 70, size: 7 }, // choice
-  years_at_address: { page: 1, x: 254, y: 529.8, maxW: 34 },
-  months_at_address:{ page: 1, x: 334, y: 529.8, maxW: 34 },
-  home_village:     { page: 1, x: 130, y: 509.2, maxW: 160 },
-  ward:             { page: 1, x: 335, y: 509.2, maxW: 153 },
-  headman:          { page: 1, x: 95,  y: 488.7, maxW: 300 },
-  account_name:     { page: 1, x: 120, y: 447.8, maxW: 318 },
-  bank_name:        { page: 1, x: 105, y: 427.3, maxW: 170 },
-  branch:           { page: 1, x: 385, y: 427.3, maxW: 103 },
-  account_number:   { page: 1, x: 130, y: 406.7, maxW: 193 },
-  account_type:     { page: 1, x: 220, y: 386.3, maxW: 230 }, // choice, sits on the dotted blank
-  // Next of Kin 1
-  nok1_name:        { page: 1, x: 80,  y: 345.3, maxW: 408 },
-  nok1_relationship:{ page: 1, x: 115, y: 324.8, maxW: 160 },
-  nok1_employer:    { page: 1, x: 355, y: 324.8, maxW: 133 },
-  nok1_tel_work:    { page: 1, x: 155, y: 304.4, maxW: 143 },
-  nok1_cell:        { page: 1, x: 340, y: 304.4, maxW: 148 },
-  nok1_address:     { page: 1, x: 130, y: 283.9, maxW: 358 },
-  nok1_village:     { page: 1, x: 110, y: 263.3, maxW: 320 },
-  nok1_headman:     { page: 1, x: 115, y: 242.8, maxW: 313 },
-  // Next of Kin 2
-  nok2_name:        { page: 1, x: 80,  y: 201.9, maxW: 408 },
-  nok2_relationship:{ page: 1, x: 115, y: 181.3, maxW: 150 },
-  nok2_employer:    { page: 1, x: 347, y: 181.3, maxW: 135 },
-  nok2_tel_work:    { page: 1, x: 155, y: 160.8, maxW: 143 },
-  nok2_cell:        { page: 1, x: 340, y: 160.8, maxW: 148 },
-  nok2_address:     { page: 1, x: 130, y: 140.4, maxW: 358 },
-  nok2_village:     { page: 1, x: 110, y: 119.9, maxW: 158 },
-  nok2_headman:     { page: 1, x: 356, y: 119.9, maxW: 132 },
+  title:            { page: 1, x: 210, y: 763.5, size: 9 },   // choice, appended right of options
+  full_names:       { page: 1, x: 100, y: 744.9, maxW: 332 },
+  marital_status:   { page: 1, x: 402, y: 726.2, maxW: 90, size: 8 }, // choice
+  maiden_name:      { page: 1, x: 180, y: 707.6, maxW: 250 },
+  dob:              { page: 1, x: 108, y: 688.9, maxW: 90 },
+  omang:            { page: 1, x: 295, y: 688.9, maxW: 108 },
+  nationality:      { page: 1, x: 97,  y: 670.3, maxW: 328 },
+  cell:             { page: 1, x: 92,  y: 627.5, maxW: 170 },
+  tel_work:         { page: 1, x: 126, y: 608.7, maxW: 120 },
+  tel_home:         { page: 1, x: 285, y: 608.7, maxW: 137 },
+  email:            { page: 1, x: 79,  y: 590.1, maxW: 358 },
+  res_address:      { page: 1, x: 137, y: 571.4, maxW: 203 },
+  occupancy:        { page: 1, x: 414, y: 571.4, maxW: 120, size: 7 }, // choice
+  years_at_address: { page: 1, x: 259, y: 552.8, maxW: 58 },
+  months_at_address:{ page: 1, x: 331, y: 552.8, maxW: 58 },
+  home_village:     { page: 1, x: 108, y: 534.1, maxW: 150 },
+  ward:             { page: 1, x: 288, y: 534.1, maxW: 134 },
+  headman:          { page: 1, x: 118, y: 515.5, maxW: 323 },
+  account_name:     { page: 1, x: 112, y: 472.6, maxW: 322 },
+  bank_name:        { page: 1, x: 104, y: 453.9, maxW: 130 },
+  branch:           { page: 1, x: 327, y: 453.9, maxW: 105 },
+  account_number:   { page: 1, x: 120, y: 435.3, maxW: 317 },
+  account_type:     { page: 1, x: 204, y: 416.6, maxW: 204 }, // choice, sits on the dotted blank
+  // Next of Kin 1 (Section 5)
+  nok1_name:        { page: 1, x: 81,  y: 373.7, maxW: 360 },
+  nok1_relationship:{ page: 1, x: 106, y: 355.1, maxW: 138 },
+  nok1_employer:    { page: 1, x: 315, y: 355.1, maxW: 105 },
+  nok1_tel_work:    { page: 1, x: 141, y: 336.4, maxW: 113 },
+  nok1_cell:        { page: 1, x: 279, y: 336.4, maxW: 130 },
+  nok1_address:     { page: 1, x: 132, y: 317.8, maxW: 286 },
+  nok1_village:     { page: 1, x: 110, y: 299.1, maxW: 138 },
+  nok1_headman:     { page: 1, x: 319, y: 299.1, maxW: 113 },
+  // Next of Kin 2 (Section 6)
+  nok2_name:        { page: 1, x: 81,  y: 256.2, maxW: 360 },
+  nok2_relationship:{ page: 1, x: 106, y: 237.6, maxW: 138 },
+  nok2_employer:    { page: 1, x: 315, y: 237.6, maxW: 105 },
+  nok2_tel_work:    { page: 1, x: 141, y: 218.9, maxW: 113 },
+  nok2_cell:        { page: 1, x: 279, y: 218.9, maxW: 130 },
+  nok2_address:     { page: 1, x: 132, y: 200.3, maxW: 286 },
+  nok2_village:     { page: 1, x: 110, y: 181.6, maxW: 138 },
+  nok2_headman:     { page: 1, x: 319, y: 181.6, maxW: 113 },
 };
 
 // signature image slot on sheet 1 (bottom-left of the drawn image)
-const SIG = { page: 0, x: 225, y: 150, maxW: 150, maxH: 42 };
+const SIG = { page: 0, x: 198, y: 166, maxW: 150, maxH: 40 };
 
 function wrapText(text, font, size, maxWidth) {
   const out = [];

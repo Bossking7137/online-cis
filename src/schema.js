@@ -17,6 +17,10 @@ export const CONSENT_BULLETS = [
 ];
 
 export const SECTIONS = [
+  { id: 'ref', title: 'REFEREE DETAILS', fields: [
+    { id: 'referee_name', label: "Referee's Full Names", type: 'text' },
+    { id: 'referee_contact', label: "Referee's Contact Details", type: 'text' },
+  ]},
   { id: 's1', title: 'SECTION 1: APPLICANT DETAILS', fields: [
     { id: 'business_name', label: 'Applicant name (Business)', type: 'text' },
     { id: 'uin', label: 'Registration number (UIN)', type: 'text' },
