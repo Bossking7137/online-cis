@@ -34,9 +34,9 @@ const MAP = {
   auth_name:        { page: 0, x: 182, y: 201.3, maxW: 240 },
 
   // ---- SHEET 2 ----
-  title:            { page: 1, x: 210, y: 763.5, size: 9 },   // choice, appended right of options
+  // title, marital_status, occupancy are "mark with X" fields — drawn as a
+  // circle around the chosen option (see CHOICES below), not as text here.
   full_names:       { page: 1, x: 100, y: 744.9, maxW: 332 },
-  marital_status:   { page: 1, x: 402, y: 726.2, maxW: 90, size: 8 }, // choice
   maiden_name:      { page: 1, x: 180, y: 707.6, maxW: 250 },
   dob:              { page: 1, x: 108, y: 688.9, maxW: 90 },
   omang:            { page: 1, x: 295, y: 688.9, maxW: 108 },
@@ -46,7 +46,6 @@ const MAP = {
   tel_home:         { page: 1, x: 285, y: 608.7, maxW: 137 },
   email:            { page: 1, x: 79,  y: 590.1, maxW: 358 },
   res_address:      { page: 1, x: 137, y: 571.4, maxW: 203 },
-  occupancy:        { page: 1, x: 414, y: 571.4, maxW: 120, size: 7 }, // choice
   years_at_address: { page: 1, x: 259, y: 552.8, maxW: 58 },
   months_at_address:{ page: 1, x: 331, y: 552.8, maxW: 58 },
   home_village:     { page: 1, x: 108, y: 534.1, maxW: 150 },
@@ -79,6 +78,29 @@ const MAP = {
 
 // signature image slot on sheet 1 (bottom-left of the drawn image)
 const SIG = { page: 0, x: 198, y: 166, maxW: 150, maxH: 40 };
+
+// "Mark with X" fields — the chosen option word is circled on the printed form.
+// Boxes are the option words' measured positions (x = left, w = width, y = baseline).
+const CHOICES = {
+  title: { page: 1, options: {
+    Mr:   { x: 82.8,  w: 12.3, y: 763.5 },
+    Mrs:  { x: 103.9, w: 17.5, y: 763.5 },
+    Miss: { x: 130.2, w: 21.6, y: 763.5 },
+    Dr:   { x: 160.5, w: 11.1, y: 763.5 },
+    Prof: { x: 180.4, w: 19.3, y: 763.5 },
+  }},
+  marital_status: { page: 1, options: {
+    'Single':       { x: 124.8, w: 28.1, y: 726.2 },
+    'Married COP':  { x: 161.3, w: 59.0, y: 726.2 },
+    'Married OCOP': { x: 228.7, w: 66.8, y: 726.2 },
+    'Divorced':     { x: 304.0, w: 39.9, y: 726.2 },
+    'Widowed':      { x: 352.3, w: 41.6, y: 726.2 },
+  }},
+  occupancy: { page: 1, options: {
+    Owner:  { x: 347.9, w: 25.4, y: 571.4 },
+    Tenant: { x: 380.5, w: 25.9, y: 571.4 },
+  }},
+};
 
 function wrapText(text, font, size, maxWidth) {
   const out = [];
@@ -141,6 +163,23 @@ export async function buildPdf(state, signaturePngBytes, templateBytes) {
       if (i === 1 && pos.contX != null) { drawX = pos.contX; drawY = pos.contY + 1.5; }
       else if (i >= 1) { drawY -= LINE_DROP; }
       page.drawText(ln, { x: drawX, y: drawY, size, font, color: INK });
+    });
+  }
+
+  // circle the chosen option on "mark with X" fields
+  for (const [id, cfg] of Object.entries(CHOICES)) {
+    const chosen = displayValue(fields[id]);
+    const box = chosen && cfg.options[chosen];
+    if (!box) continue;
+    const page = pages[cfg.page];
+    if (!page) continue;
+    page.drawEllipse({
+      x: box.x + box.w / 2,
+      y: box.y + 3,
+      xScale: box.w / 2 + 5,
+      yScale: 8.5,
+      borderColor: INK,
+      borderWidth: 1.2,
     });
   }
 
