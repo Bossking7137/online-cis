@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Online CIS — unit tests</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "node:test": "./_harness.js",
+      "node:assert/strict": "./_assert.js"
+    }
+  }
+  </script>
+  <style>body{font:14px/1.5 monospace;padding:1rem}pre{white-space:pre-wrap}</style>
+</head>
+<body>
+  <h1>Online CIS — unit tests</h1>
+  <pre id="out">running…</pre>
+  <script type="module">
+    // Import every test file (added as tasks complete), then run.
+    await import('./schema.test.js');
+    const { runAll } = await import('./_harness.js');
+    await runAll();
+  </script>
+</body>
+</html>
