@@ -8,6 +8,17 @@ import { sanitizeFilename, isBlank, displayValue, todayISO } from './util.js';
 
 const state = loadState(localStorage);
 
+// The original AOK form used as the PDF background. Fetched once, cached.
+const TEMPLATE_URL = new URL('../assets/aok-cis-template.pdf', import.meta.url);
+let _templateBytes = null;
+async function loadTemplate() {
+  if (_templateBytes) return _templateBytes;
+  const resp = await fetch(TEMPLATE_URL);
+  if (!resp.ok) throw new Error('Could not load the form template (' + resp.status + ').');
+  _templateBytes = new Uint8Array(await resp.arrayBuffer());
+  return _templateBytes;
+}
+
 const STEPS = [
   { kind: 'intro' },
   ...SECTIONS.map((section) => ({ kind: 'section', section })),
@@ -229,7 +240,8 @@ function renderReview() {
     genError.style.display = 'none';
     genError.textContent = '';
     try {
-      const bytes = await buildPdf(state, state.signature);
+      const templateBytes = await loadTemplate();
+      const bytes = await buildPdf(state, state.signature, templateBytes);
       const name = sanitizeFilename(state.fields.business_name || state.fields.full_names);
       const filename = 'AOK-CIS-' + name + '-' + todayISO() + '.pdf';
       const waMessage = 'Hello, attached is my completed Africa Origin Khumoetsile Client Information Sheet.';
