@@ -208,7 +208,8 @@ function renderReview() {
   }));
   const sigBtn = el('button', {
     type: 'button',
-    text: signed ? 'Re-sign' : 'Sign now',
+    class: 'primary',
+    text: signed ? 'Re-sign' : 'Click here to sign',
     onclick: openSignatureModal,
   });
   sigSection.appendChild(sigBtn);
@@ -228,7 +229,7 @@ function renderReview() {
   const generateBtn = el('button', {
     type: 'button',
     class: 'primary',
-    text: 'Generate PDF',
+    text: 'Save & Share PDF',
     disabled: v.ok ? undefined : 'disabled',
   });
   if (!v.ok) generateBtn.disabled = true;
@@ -252,7 +253,7 @@ function renderReview() {
       genError.style.display = '';
     } finally {
       generateBtn.disabled = false;
-      generateBtn.textContent = 'Generate PDF';
+      generateBtn.textContent = 'Save & Share PDF';
     }
   });
   actions.appendChild(generateBtn);
