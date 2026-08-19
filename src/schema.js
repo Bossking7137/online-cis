@@ -27,7 +27,7 @@ export const SECTIONS = [
     { id: 'business_address', label: 'Business postal address', type: 'textarea' },
     { id: 'consent', label: 'I have read and agree to the Borrower Reference Consent above', type: 'checkbox' },
     { id: 'auth_name', label: 'Borrower duly Authorised name', type: 'text' },
-    { id: 'consent_date', label: 'Date', type: 'date' },
+    { id: 'consent_date', label: 'Date (today — filled automatically)', type: 'date', readonly: true },
   ]},
   { id: 's2', title: 'SECTION 2: APPLICANT PERSONAL DETAILS', fields: [
     { id: 'title', label: 'Title', type: 'choice', options: ['Mr','Mrs','Miss','Dr','Prof'] },
@@ -52,7 +52,7 @@ export const SECTIONS = [
     { id: 'headman', label: 'Headman', type: 'text' },
   ]},
   { id: 's4', title: 'SECTION 4: APPLICANT BANK DETAILS', fields: [
-    { id: 'account_name', label: 'Account Name', type: 'text' },
+    { id: 'account_name', label: 'Account Name (Business Name)', type: 'text' },
     { id: 'bank_name', label: 'Bank name', type: 'text' },
     { id: 'branch', label: 'Branch name & code', type: 'text' },
     { id: 'account_number', label: 'Account Number', type: 'text' },

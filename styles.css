@@ -289,3 +289,23 @@ dialog#sigModal .row {
 dialog#sigModal .row button {
   flex: 1;
 }
+
+/* success note shown after the PDF is created */
+.done-msg {
+  margin: 0.75rem 0 0.5rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: rgba(16, 122, 87, 0.12);
+  color: var(--accent, #0b7a57);
+  font-weight: 600;
+}
+
+/* auto-filled, non-editable value (e.g. today's date) */
+.readonly-value {
+  padding: 0.55rem 0.7rem;
+  border: 1px dashed var(--border, #cbd5e1);
+  border-radius: 8px;
+  background: var(--muted-bg, rgba(0,0,0,0.04));
+  color: var(--text, inherit);
+  font-weight: 600;
+}

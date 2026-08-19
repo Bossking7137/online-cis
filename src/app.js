@@ -3,10 +3,13 @@ import { validateForGenerate } from './validation.js';
 import { createState, saveState, loadState, clearState } from './state.js';
 import { SignaturePad } from './signature.js';
 import { buildPdf } from './pdf.js';
-import { sharePdf } from './share.js';
+import { saveAndReview, shareFile } from './share.js';
 import { sanitizeFilename, isBlank, displayValue, todayISO } from './util.js';
 
 const state = loadState(localStorage);
+
+// The form Date is always today's date, filled automatically and not editable.
+state.fields.consent_date = todayISO();
 
 // The original AOK form used as the PDF background. Fetched once, cached.
 const TEMPLATE_URL = new URL('../assets/aok-cis-template.pdf', import.meta.url);
@@ -109,6 +112,13 @@ function renderField(fld) {
 
   const label = el('label', { for: fld.id, text: fld.label });
   wrap.appendChild(label);
+
+  if (fld.readonly) {
+    // Auto-filled, locked value (e.g. today's date) — shown but not editable.
+    const box = el('div', { class: 'readonly-value', text: displayValue(state.fields[fld.id]) || '—' });
+    wrap.appendChild(box);
+    return wrap;
+  }
 
   if (fld.type === 'textarea') {
     const textarea = el('textarea', { id: fld.id });
@@ -235,9 +245,20 @@ function renderReview() {
   if (!v.ok) generateBtn.disabled = true;
   const genError = el('p', { class: 'errors', text: '' });
   genError.style.display = 'none';
+
+  // Status + share controls that appear after the PDF is made.
+  const doneMsg = el('p', { class: 'done-msg', text: '' });
+  doneMsg.style.display = 'none';
+  const shareBtn = el('button', { type: 'button', class: 'primary', text: 'Share (WhatsApp / Email)' });
+  shareBtn.style.display = 'none';
+  const waMessage = 'Hello, attached is my completed Africa Origin Khumoetsile Client Information Sheet.';
+
   generateBtn.addEventListener('click', async () => {
+    // open a blank tab NOW (inside the gesture) so mobile browsers allow the
+    // review tab; we point it at the PDF once it is built.
+    const reviewTab = window.open('', '_blank');
     generateBtn.disabled = true;
-    generateBtn.textContent = 'Generating…';
+    generateBtn.textContent = 'Preparing your PDF…';
     genError.style.display = 'none';
     genError.textContent = '';
     try {
@@ -245,18 +266,25 @@ function renderReview() {
       const bytes = await buildPdf(state, state.signature, templateBytes);
       const name = sanitizeFilename(state.fields.business_name || state.fields.full_names);
       const filename = 'AOK-CIS-' + name + '-' + todayISO() + '.pdf';
-      const waMessage = 'Hello, attached is my completed Africa Origin Khumoetsile Client Information Sheet.';
-      await sharePdf(bytes, filename, waMessage);
+      const file = saveAndReview(bytes, filename, reviewTab);
+      doneMsg.textContent = 'Saved to your device and opened for you to review. When you are happy, share it:';
+      doneMsg.style.display = '';
+      shareBtn.style.display = '';
+      shareBtn.onclick = () => shareFile(file, waMessage);
+      generateBtn.textContent = 'Re-create PDF';
     } catch (err) {
-      genError.textContent = 'Something went wrong generating your PDF. Please try again. '
+      if (reviewTab && !reviewTab.closed) reviewTab.close();
+      genError.textContent = 'Something went wrong creating your PDF. Please try again. '
         + ((err && err.message) ? '(' + err.message + ')' : '');
       genError.style.display = '';
+      generateBtn.textContent = 'Save & Share PDF';
     } finally {
       generateBtn.disabled = false;
-      generateBtn.textContent = 'Save & Share PDF';
     }
   });
   actions.appendChild(generateBtn);
+  actions.appendChild(doneMsg);
+  actions.appendChild(shareBtn);
   actions.appendChild(genError);
   wrap.appendChild(actions);
 
