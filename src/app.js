@@ -4,12 +4,12 @@ import { createState, saveState, loadState, clearState } from './state.js';
 import { SignaturePad } from './signature.js';
 import { buildPdf } from './pdf.js';
 import { saveAndReview, shareFile } from './share.js';
-import { sanitizeFilename, isBlank, displayValue, todayISO } from './util.js';
+import { sanitizeFilename, isBlank, displayValue, todayISO, formatDMY } from './util.js';
 
 const state = loadState(localStorage);
 
-// The form Date is always today's date, filled automatically and not editable.
-state.fields.consent_date = todayISO();
+// The form Date is always today's date (DD/MM/YYYY), filled automatically and not editable.
+state.fields.consent_date = formatDMY();
 
 // The original AOK form used as the PDF background. Fetched once, cached.
 const TEMPLATE_URL = new URL('../assets/aok-cis-template.pdf', import.meta.url);

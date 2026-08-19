@@ -17,3 +17,11 @@ export function displayValue(v) {
 export function todayISO(d = new Date()) {
   return d.toISOString().slice(0, 10);
 }
+
+// Day/Month/Year, e.g. 19/08/2026 (uses the client's local date).
+export function formatDMY(d = new Date()) {
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
