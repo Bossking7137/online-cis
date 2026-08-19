@@ -6,9 +6,9 @@ A client-side, no-backend web app for Africa Origin Khumoetsile (AOK). Clients f
 
 This is a **static web app** with no backend or database. Everything runs in the browser:
 
-- Client fills out a form (personal details, banking information, declaration)
+- Client fills out the form (referee, business/applicant, personal, contact, bank, next-of-kin)
 - Client draws their signature on a touch-enabled canvas
-- PDF is generated client-side (using pdf-lib)
+- The completed PDF is generated client-side by **overlaying the answers onto AOK's original form** (`assets/aok-cis-template.pdf`) — so the output is pixel-identical to the paper form (logo, headings, dotted lines all preserved), with answers typed into the blanks, the chosen "mark with X" options circled, and the signature dropped onto the signature line
 - PDF is shared at the client's choice (WhatsApp on phones; download + link on desktop)
 
 **No data is sent to any server.** All sensitive information (Omang, bank details, signature) stays on the client's device. Only the finished PDF is shared, at the user's complete discretion.
@@ -36,7 +36,7 @@ Unit tests run in the browser (no Node.js installation required).
 
 Open `http://localhost:8000/tests/index.html` in a browser. The page prints a PASS/FAIL summary.
 
-**Current status:** 16 unit tests, all passing (schema validation, utilities, form validation, state management, PDF generation).
+**Current status:** 18 unit tests, all passing (schema, utilities, form validation, state management, PDF overlay generation).
 
 For more details, see [TESTING.md](TESTING.md).
 
@@ -80,14 +80,16 @@ online-cis/
 ├── index.html              # Main app entry point
 ├── styles.css              # Styling (mobile-responsive, dark-mode support)
 ├── src/
-│   ├── app.js              # Main controller
-│   ├── schema.js           # Form field definitions (16 fields: name, Omang, bank details, etc.)
+│   ├── app.js              # Main controller (wizard, loads the template)
+│   ├── schema.js           # Form field definitions (single source of truth: referee + 5 sections)
 │   ├── validation.js       # Form validation rules
 │   ├── state.js            # State management (fields + signature)
 │   ├── signature.js        # Canvas signature pad (touch & pointer events)
-│   ├── pdf.js              # PDF generation (pdf-lib)
+│   ├── pdf.js              # PDF generation — overlays answers onto the template; coordinate MAP + CHOICES
 │   ├── util.js             # Utilities (formatting, strings)
 │   └── share.js            # Native share (mobile) / download + WhatsApp link (desktop)
+├── assets/
+│   └── aok-cis-template.pdf # AOK's original form (Version 3) used as the PDF background — MUST ship with the app
 ├── vendor/
 │   └── pdf-lib.esm.js      # Vendored PDF library (ES module, no CDN)
 ├── tests/
@@ -115,10 +117,11 @@ All modules use a consistent state shape:
 ```javascript
 state = {
   fields: {
-    // id → value (string, date, etc.)
-    "fullName": "John Doe",
-    "omang": "123456789",
-    // ... 14 more fields
+    // id → value (string, date, boolean for consent)
+    "business_name": "Kgalagadi General Traders (Pty) Ltd",
+    "full_names": "Thabo Kagiso Molefe",
+    "omang": "448812409",
+    // ... the rest of the referee + 5-section fields
   },
   signature: Uint8Array | null  // PNG bytes from canvas
 }
@@ -129,11 +132,16 @@ state = {
 - Clear error messages (inline on each field)
 - Generate button disabled until all required fields pass validation
 
-### PDF generation
+### PDF generation (template overlay)
 - Uses pdf-lib (vendored, no CDN)
-- Embeds the signature as a PNG image in the PDF
-- Generates filename: `AOK-CIS-<fullname>-<date>.pdf`
-- ~7.2 KB file size
+- Loads AOK's original form (`assets/aok-cis-template.pdf`) as the background and types answers onto the blank lines — output is identical to the paper form
+- Blank-line positions are the **true glyph coordinates** of each dotted leader, read from the template's own font, so answers sit in the blanks and never overlap the printed labels. All positions live in one `MAP` (and `CHOICES` for circled options) in `src/pdf.js` — nudge a field by editing one line
+- "Mark with X" fields (Title, Marital Status, Owner/Tenant) are **circled** on the chosen word
+- Embeds the signature as a PNG on the signature line (page 1)
+- Filename: `AOK-CIS-<business-or-full-name>-<date>.pdf`
+- ~235 KB (the file includes the original 2-page form as its background)
+
+> **If AOK issues a new version of the form,** replace `assets/aok-cis-template.pdf` and re-measure the coordinates (the label positions shift). The measurement method is documented in `TESTING.md`.
 
 ### Sharing
 - **Mobile (touch devices):** Native share sheet with WhatsApp pre-selected

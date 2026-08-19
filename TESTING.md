@@ -6,7 +6,7 @@ This document describes the automated tests (unit tests, E2E test) and the manua
 
 ### Unit Tests — DONE ✓
 
-**Status:** All 16 tests passing.
+**Status:** All 18 tests passing.
 
 **How to run:**
 1. Start a local HTTP server: `python -m http.server 8000`
@@ -19,12 +19,12 @@ Tests run in the browser (no Node.js required). An import map in `tests/index.ht
 
 | Module | File | Tests | Status |
 |--------|------|-------|--------|
-| Schema | `tests/schema.test.js` | 2 | PASS |
-| Utilities | `tests/util.test.js` | 4 | PASS |
-| Validation | `tests/validation.test.js` | 5 | PASS |
+| Schema | `tests/schema.test.js` | 4 | PASS |
+| Utilities | `tests/util.test.js` | 3 | PASS |
+| Validation | `tests/validation.test.js` | 4 | PASS |
 | State | `tests/state.test.js` | 3 | PASS |
-| PDF generation | `tests/pdf.test.js` | 2 | PASS |
-| **Total** | | **16** | **PASS** |
+| PDF overlay | `tests/pdf.test.js` | 4 | PASS |
+| **Total** | | **18** | **PASS** |
 
 **What's tested:**
 - Schema: Field definitions, form structure
@@ -35,14 +35,16 @@ Tests run in the browser (no Node.js required). An import map in `tests/index.ht
 
 ### End-to-End Test — DONE ✓
 
-**What was tested:**
-- Filled every form field (name, Omang, banking details, declarations)
+**What was tested (through the live wizard UI):**
+- Walked every step: Referee → Section 1–5 → Review
+- Filled every field; choice fields (Title, Marital status, Owner/Tenant, Account type) set via chips
 - Captured a signature on the canvas via pointer events (confirmed no page scrolling during drawing)
 - Passed all validation checks
-- Generated a PDF locally
-  - File: `AOK-CIS-<name>-<date>.pdf`
-  - Size: ~7.2 KB
-  - Format: Valid PDF (starts with `%PDF-`, contains embedded signature image)
+- Generated a PDF locally by overlaying answers onto the AOK Version 3 template
+  - File: `AOK-CIS-<business-or-full-name>-<date>.pdf`
+  - Size: ~235 KB (includes the original 2-page form as the background)
+  - Format: Valid PDF (`%PDF-`), answers sit in the blanks, chosen options circled, signature on page 1
+- Verified via a stress build that overlong values wrap and never overflow the page
 - Initiated sharing (download + WhatsApp fallback on desktop)
 
 **Result:** PASS
@@ -61,7 +63,7 @@ On each device, follow this checklist:
    - [ ] All form fields visible and readable
 
 2. **Fill the form**
-   - [ ] All 16 fields are present (name, Omang, banking, etc.)
+   - [ ] All steps are present (Referee, Applicant, Personal, Contact, Bank, Next-of-Kin 1 & 2)
    - [ ] No fields are cut off or hidden
    - [ ] Typing works (keyboard appears on mobile)
    - [ ] Required fields are marked (red asterisk)
@@ -74,9 +76,9 @@ On each device, follow this checklist:
    - [ ] Signature is visible after "Save signature" is pressed
 
 4. **Generate PDF**
-   - [ ] "Generate & share" button is enabled (all required fields filled + signed)
-   - [ ] Clicking generates a PDF locally (no network request)
-   - [ ] Progress is shown (modal or toast)
+   - [ ] "Generate PDF" button is enabled (name + cell + consent + signature present)
+   - [ ] Clicking generates a PDF locally
+   - [ ] **Open the PDF and confirm the answers sit in the blanks (not on the labels), the chosen Title/Marital/Owner options are circled, and the signature is on page 1**
    - [ ] PDF download completes or share sheet appears
 
 5. **Share**
@@ -122,7 +124,7 @@ Before going live:
 - [ ] E2E test completed (form fill → sign → generate → share works)
 - [ ] Device matrix completed (Android Chrome, iPhone Safari, desktop Chrome/Edge)
 - [ ] No console errors on any device
-- [ ] PDF generation works (file is valid, ~7KB, contains signature)
+- [ ] PDF generation works (valid file, answers in the blanks, options circled, signature on page 1)
 - [ ] Sharing works (WhatsApp is in share options on phones)
 - [ ] Desktop WhatsApp caveat is communicated to users (download-then-attach)
 
@@ -136,7 +138,28 @@ Before going live:
 
 3. **Signature quality:** Depends on the input device (stylus > finger, higher DPI = sharper image).
 
-4. **PDF file size:** ~7.2 KB base + signature image (~2–4 KB depending on complexity). Total is typically 9–11 KB.
+4. **PDF file size:** ~235 KB, because the output embeds AOK's original 2-page form as its background (this is what guarantees the layout matches exactly).
+
+---
+
+## Updating coordinates when AOK changes the form
+
+The PDF is produced by typing answers onto `assets/aok-cis-template.pdf` at fixed
+coordinates. If AOK issues a new version of the form, the labels move, so the
+coordinates in `src/pdf.js` (`MAP` and `CHOICES`) must be re-measured:
+
+1. Replace `assets/aok-cis-template.pdf` with the new form.
+2. Serve the project (`python -m http.server 8137`) and open any page.
+3. In the browser console, load pdf.js and read the **true glyph positions** of
+   each dotted leader from the template's operator list (this is how the current
+   coordinates were derived — estimating label widths with a substitute font is
+   NOT accurate enough and causes answers to overlap the labels). For each field
+   line, take the x where its first `…` glyph is painted; that is the blank-start
+   x. For "mark with X" options, take each option word's x and width for the
+   circle.
+4. Update `MAP` (x = blank-start + ~2, y = the line's baseline, maxW = distance to
+   the next label or line end) and `CHOICES` in `src/pdf.js`.
+5. Regenerate a sample and confirm every answer sits in its blank.
 
 ---
 
@@ -171,7 +194,7 @@ Before going live:
 
 **"PDF doesn't generate on one device but works on another"**
 - Check browser console (F12 → Console tab) for errors
-- Confirm the device has enough memory (unlikely to be an issue for an 11 KB file)
+- Confirm the device has enough memory (unlikely to be an issue for a ~235 KB file)
 - Try a different browser on the same device
 
 ---

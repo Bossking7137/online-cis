@@ -2,3 +2,6 @@
 .fh_cache/
 node_modules/
 *.log
+
+# generated PDF samples (not the template)
+AOK-CIS-SAMPLE*.pdf
