@@ -1,0 +1,5 @@
+# Online CIS is a static, no-build web app (vendored pdf-lib, plain ES modules).
+# Serve the repository root as-is; there is nothing to compile.
+[build]
+  command = "echo 'no build needed'"
+  publish = "."
