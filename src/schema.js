@@ -81,7 +81,7 @@ export const SECTIONS = [
     { id: 'nok2_headman', label: 'NOK2 Headman name', type: 'text' },
   ]},
   { id: 'bo', title: 'BENEFICIAL OWNER DETAILS',
-    note: 'Identify every individual who ultimately owns or controls the customer, directly or indirectly.',
+    note: 'Identify every individual who ultimately owns or controls the customer, directly or indirectly. Shareholders details and company share, as registered in CIPA.',
     fields: [
     // Beneficial Owner 1
     { id: 'bo1_name', label: 'Beneficial Owner 1 — Full Name', type: 'text' },
@@ -89,11 +89,11 @@ export const SECTIONS = [
     { id: 'bo1_nationality', label: 'BO1 Nationality', type: 'text' },
     { id: 'bo1_omang', label: 'BO1 Omang / Passport No.', type: 'text' },
     { id: 'bo1_address', label: 'BO1 Residential Address', type: 'textarea' },
-    { id: 'bo1_direct_pct', label: 'BO1 Direct Ownership %', type: 'text' },
+    { id: 'bo1_direct_pct', label: 'BO1 Direct Ownership %', type: 'text', hint: 'How much percentage shares you own of the company' },
     { id: 'bo1_indirect_pct', label: 'BO1 Indirect Ownership %', type: 'text' },
     { id: 'bo1_control', label: 'BO1 Nature of control', type: 'choice', options: ['Shares','Voting','Other'] },
     // Beneficial Owner 2
-    { id: 'bo2_name', label: 'Beneficial Owner 2 — Full Name', type: 'text' },
+    { id: 'bo2_name', label: 'Beneficial Owner 2 — Full Name', type: 'text', hint: 'If you are 1 director and you own 100% shares, leave it blank or N/A' },
     { id: 'bo2_dob', label: 'BO2 Date of Birth', type: 'date' },
     { id: 'bo2_nationality', label: 'BO2 Nationality', type: 'text' },
     { id: 'bo2_omang', label: 'BO2 Omang / Passport No.', type: 'text' },
