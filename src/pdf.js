@@ -74,21 +74,21 @@ const MAP = {
   nok2_headman:     { page: 1, x: 330, y: 181.6, maxW: 108 },
 
   // ---- SHEET 3 (Beneficial Owners + PEP) ----
-  // Two columns: Beneficial Owner 1 blanks start x=194.8, Owner 2 at x=347.5.
-  bo1_name:         { page: 2, x: 194.8, y: 715.7, maxW: 146 },
-  bo2_name:         { page: 2, x: 347.5, y: 715.7, maxW: 200 },
-  bo1_dob:          { page: 2, x: 194.8, y: 688.7, maxW: 146 },
-  bo2_dob:          { page: 2, x: 347.5, y: 688.7, maxW: 200 },
-  bo1_nationality:  { page: 2, x: 194.8, y: 661.7, maxW: 146 },
-  bo2_nationality:  { page: 2, x: 347.5, y: 661.7, maxW: 200 },
-  bo1_omang:        { page: 2, x: 194.8, y: 634.7, maxW: 146 },
-  bo2_omang:        { page: 2, x: 347.5, y: 634.7, maxW: 200 },
-  bo1_address:      { page: 2, x: 194.8, y: 607.8, maxW: 146, contX: 194.8, contY: 593.2, contW: 146 },
-  bo2_address:      { page: 2, x: 347.5, y: 607.8, maxW: 200, contX: 347.5, contY: 593.2, contW: 200 },
-  bo1_direct_pct:   { page: 2, x: 196,   y: 566.2, maxW: 44 },
-  bo2_direct_pct:   { page: 2, x: 349,   y: 566.2, maxW: 44 },
-  bo1_indirect_pct: { page: 2, x: 196,   y: 539.2, maxW: 44 },
-  bo2_indirect_pct: { page: 2, x: 349,   y: 539.2, maxW: 44 },
+  // Two columns (true blank left edges from PyMuPDF): Owner 1 at x=217, Owner 2 at x=370.
+  bo1_name:         { page: 2, x: 217, y: 715.7, maxW: 110 },
+  bo2_name:         { page: 2, x: 370, y: 715.7, maxW: 110 },
+  bo1_dob:          { page: 2, x: 217, y: 688.7, maxW: 110 },
+  bo2_dob:          { page: 2, x: 370, y: 688.7, maxW: 110 },
+  bo1_nationality:  { page: 2, x: 217, y: 661.7, maxW: 110 },
+  bo2_nationality:  { page: 2, x: 370, y: 661.7, maxW: 110 },
+  bo1_omang:        { page: 2, x: 217, y: 634.7, maxW: 110 },
+  bo2_omang:        { page: 2, x: 370, y: 634.7, maxW: 110 },
+  bo1_address:      { page: 2, x: 217, y: 607.8, maxW: 110, contX: 217, contY: 593.2, contW: 66 },
+  bo2_address:      { page: 2, x: 370, y: 607.8, maxW: 110, contX: 370, contY: 593.2, contW: 66 },
+  bo1_direct_pct:   { page: 2, x: 218, y: 566.2, maxW: 24 },
+  bo2_direct_pct:   { page: 2, x: 371, y: 566.2, maxW: 24 },
+  bo1_indirect_pct: { page: 2, x: 218, y: 539.2, maxW: 24 },
+  bo2_indirect_pct: { page: 2, x: 371, y: 539.2, maxW: 24 },
   // PEP declaration
   pep_name:         { page: 2, x: 259.2, y: 395.0, maxW: 320 },
   pep_position:     { page: 2, x: 259.2, y: 381.1, maxW: 320 },
@@ -130,14 +130,14 @@ const CHOICES = {
   }},
   // Sheet 3 "Nature of control" — circle the chosen word (boxes are ambiguous).
   bo1_control: { page: 2, options: {
-    Shares: { x: 222.2, w: 31, y: 510.8 },
-    Voting: { x: 266.4, w: 30, y: 510.8 },
-    Other:  { x: 312.5, w: 28, y: 510.8 },
+    Shares: { x: 222.2, w: 32.2, y: 510.8 },
+    Voting: { x: 263.9, w: 36.7, y: 510.8 },
+    Other:  { x: 310.1, w: 31.0, y: 510.8 },
   }},
   bo2_control: { page: 2, options: {
-    Shares: { x: 355.0, w: 50, y: 510.8 },
-    Voting: { x: 420.3, w: 30, y: 510.8 },
-    Other:  { x: 463.9, w: 28, y: 510.8 },
+    Shares: { x: 371.1, w: 37.2, y: 510.8 },
+    Voting: { x: 417.8, w: 34.2, y: 510.8 },
+    Other:  { x: 461.5, w: 30.9, y: 510.8 },
   }},
 };
 
