@@ -78,6 +78,35 @@ export const SECTIONS = [
     { id: 'nok2_village', label: 'NOK2 Home village', type: 'text' },
     { id: 'nok2_headman', label: 'NOK2 Headman name', type: 'text' },
   ]},
+  { id: 'bo', title: 'BENEFICIAL OWNER DETAILS',
+    note: 'Identify every individual who ultimately owns or controls the customer, directly or indirectly.',
+    fields: [
+    // Beneficial Owner 1
+    { id: 'bo1_name', label: 'Beneficial Owner 1 — Full Name', type: 'text' },
+    { id: 'bo1_dob', label: 'BO1 Date of Birth', type: 'date' },
+    { id: 'bo1_nationality', label: 'BO1 Nationality', type: 'text' },
+    { id: 'bo1_omang', label: 'BO1 Omang / Passport No.', type: 'text' },
+    { id: 'bo1_address', label: 'BO1 Residential Address', type: 'textarea' },
+    { id: 'bo1_direct_pct', label: 'BO1 Direct Ownership %', type: 'text' },
+    { id: 'bo1_indirect_pct', label: 'BO1 Indirect Ownership %', type: 'text' },
+    { id: 'bo1_control', label: 'BO1 Nature of control', type: 'choice', options: ['Shares','Voting','Other'] },
+    // Beneficial Owner 2
+    { id: 'bo2_name', label: 'Beneficial Owner 2 — Full Name', type: 'text' },
+    { id: 'bo2_dob', label: 'BO2 Date of Birth', type: 'date' },
+    { id: 'bo2_nationality', label: 'BO2 Nationality', type: 'text' },
+    { id: 'bo2_omang', label: 'BO2 Omang / Passport No.', type: 'text' },
+    { id: 'bo2_address', label: 'BO2 Residential Address', type: 'textarea' },
+    { id: 'bo2_direct_pct', label: 'BO2 Direct Ownership %', type: 'text' },
+    { id: 'bo2_indirect_pct', label: 'BO2 Indirect Ownership %', type: 'text' },
+    { id: 'bo2_control', label: 'BO2 Nature of control', type: 'choice', options: ['Shares','Voting','Other'] },
+  ]},
+  { id: 'pep', title: 'POLITICALLY EXPOSED PERSON (PEP) DECLARATION', fields: [
+    { id: 'pep_status', label: 'Are you a Politically Exposed Person (PEP)?', type: 'choice', options: ['Yes','No'] },
+    { id: 'pep_name', label: 'If YES — Name', type: 'text' },
+    { id: 'pep_position', label: 'Public Position / Function', type: 'text' },
+    { id: 'pep_country', label: 'Country / Jurisdiction', type: 'text' },
+    { id: 'pep_relationship', label: 'Relationship to Customer', type: 'text' },
+  ]},
 ];
 
 export const ALL_FIELDS = SECTIONS.flatMap(s => s.fields);

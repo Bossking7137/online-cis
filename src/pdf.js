@@ -72,6 +72,36 @@ const MAP = {
   nok2_address:     { page: 1, x: 149, y: 200.3, maxW: 280 },
   nok2_village:     { page: 1, x: 120, y: 181.6, maxW: 138 },
   nok2_headman:     { page: 1, x: 330, y: 181.6, maxW: 108 },
+
+  // ---- SHEET 3 (Beneficial Owners + PEP) ----
+  // Two columns: Beneficial Owner 1 blanks start x=194.8, Owner 2 at x=347.5.
+  bo1_name:         { page: 2, x: 194.8, y: 715.7, maxW: 146 },
+  bo2_name:         { page: 2, x: 347.5, y: 715.7, maxW: 200 },
+  bo1_dob:          { page: 2, x: 194.8, y: 688.7, maxW: 146 },
+  bo2_dob:          { page: 2, x: 347.5, y: 688.7, maxW: 200 },
+  bo1_nationality:  { page: 2, x: 194.8, y: 661.7, maxW: 146 },
+  bo2_nationality:  { page: 2, x: 347.5, y: 661.7, maxW: 200 },
+  bo1_omang:        { page: 2, x: 194.8, y: 634.7, maxW: 146 },
+  bo2_omang:        { page: 2, x: 347.5, y: 634.7, maxW: 200 },
+  bo1_address:      { page: 2, x: 194.8, y: 607.8, maxW: 146, contX: 194.8, contY: 593.2, contW: 146 },
+  bo2_address:      { page: 2, x: 347.5, y: 607.8, maxW: 200, contX: 347.5, contY: 593.2, contW: 200 },
+  bo1_direct_pct:   { page: 2, x: 196,   y: 566.2, maxW: 44 },
+  bo2_direct_pct:   { page: 2, x: 349,   y: 566.2, maxW: 44 },
+  bo1_indirect_pct: { page: 2, x: 196,   y: 539.2, maxW: 44 },
+  bo2_indirect_pct: { page: 2, x: 349,   y: 539.2, maxW: 44 },
+  // PEP declaration
+  pep_name:         { page: 2, x: 259.2, y: 395.0, maxW: 320 },
+  pep_position:     { page: 2, x: 259.2, y: 381.1, maxW: 320 },
+  pep_country:      { page: 2, x: 259.2, y: 367.1, maxW: 320 },
+  pep_relationship: { page: 2, x: 259.2, y: 353.1, maxW: 320 },
+};
+
+// Checkbox fields on sheet 3 — draw an "X" inside the chosen box (☐).
+// x,y are the glyph position of each option's box.
+const TICKS = {
+  pep_status: { page: 2, options: {
+    Yes: { x: 259.2, y: 408.9 }, No: { x: 297.1, y: 408.9 },
+  }},
 };
 
 // signature image slot on sheet 1 (bottom-left of the drawn image)
@@ -97,6 +127,17 @@ const CHOICES = {
   occupancy: { page: 1, options: {
     Owner:  { x: 335.3, w: 30.2, y: 571 },
     Tenant: { x: 374.6, w: 31.4, y: 571 },
+  }},
+  // Sheet 3 "Nature of control" — circle the chosen word (boxes are ambiguous).
+  bo1_control: { page: 2, options: {
+    Shares: { x: 222.2, w: 31, y: 510.8 },
+    Voting: { x: 266.4, w: 30, y: 510.8 },
+    Other:  { x: 312.5, w: 28, y: 510.8 },
+  }},
+  bo2_control: { page: 2, options: {
+    Shares: { x: 355.0, w: 50, y: 510.8 },
+    Voting: { x: 420.3, w: 30, y: 510.8 },
+    Other:  { x: 463.9, w: 28, y: 510.8 },
   }},
 };
 
@@ -178,6 +219,16 @@ export async function buildPdf(state, signaturePngBytes, templateBytes) {
       borderColor: INK,
       borderWidth: 1.2,
     });
+  }
+
+  // tick the chosen checkbox on sheet 3 fields
+  for (const [id, cfg] of Object.entries(TICKS)) {
+    const chosen = displayValue(fields[id]);
+    const box = chosen && cfg.options[chosen];
+    if (!box) continue;
+    const page = pages[cfg.page];
+    if (!page) continue;
+    page.drawText('X', { x: box.x + 1.6, y: box.y + 1.2, size: 9, font, color: INK });
   }
 
   // signature on sheet 1

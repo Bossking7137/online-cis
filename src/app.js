@@ -176,6 +176,7 @@ function renderIntro() {
 function renderSection(section) {
   const wrap = el('div');
   wrap.appendChild(el('h2', { class: 'step-title', text: section.title }));
+  if (section.note) wrap.appendChild(el('p', { class: 'hint', text: section.note }));
   for (const fld of section.fields) {
     wrap.appendChild(renderField(fld));
   }

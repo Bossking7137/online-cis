@@ -8,9 +8,9 @@ test('header carries verbatim AOK constants', () => {
   assert.equal(HEADER.title, 'CLIENT INFORMATION SHEET');
 });
 
-test('has the referee + five sections in order', () => {
+test('has the referee + five sections + beneficial-owner + PEP in order', () => {
   const titles = SECTIONS.map(s => s.id);
-  assert.deepEqual(titles, ['ref', 's1', 's2', 's3', 's4', 's5']);
+  assert.deepEqual(titles, ['ref', 's1', 's2', 's3', 's4', 's5', 'bo', 'pep']);
 });
 
 test('choice fields carry options; known Botswana terms present', () => {
