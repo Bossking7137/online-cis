@@ -31,7 +31,7 @@ export const SECTIONS = [
     { id: 'auth_name', label: 'Borrower duly Authorised name', type: 'text' },
     { id: 'consent_date', label: 'Date (today — filled automatically)', type: 'date', readonly: true },
   ]},
-  { id: 's2', title: 'SECTION 2: APPLICANT PERSONAL DETAILS', fields: [
+  { id: 's2', title: 'SECTION 2: APPLICANT PERSONAL DETAILS', note: 'Director Details', fields: [
     { id: 'title', label: 'Title', type: 'choice', options: ['Mr','Mrs','Miss','Dr','Prof'] },
     { id: 'full_names', label: 'Full Names', type: 'text' },
     { id: 'marital_status', label: 'Marital Status', type: 'choice', options: ['Single','Married COP','Married OCOP','Divorced','Widowed'] },
