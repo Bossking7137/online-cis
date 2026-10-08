@@ -45,7 +45,7 @@ export const SECTIONS = [
     { id: 'tel_work', label: 'Telephone (Work)', type: 'tel' },
     { id: 'tel_home', label: 'Telephone (Home)', type: 'tel' },
     { id: 'email', label: 'Email', type: 'email' },
-    { id: 'res_address', label: 'Residential Address', type: 'textarea' },
+    { id: 'res_address', label: 'Residential Address', type: 'textarea', hint: 'Where you are staying currently' },
     { id: 'occupancy', label: 'Owner / Tenant', type: 'choice', options: ['Owner','Tenant'] },
     { id: 'years_at_address', label: 'Years at address', type: 'text' },
     { id: 'months_at_address', label: 'Months at address', type: 'text' },
