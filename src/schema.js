@@ -53,7 +53,7 @@ export const SECTIONS = [
     { id: 'ward', label: 'Ward', type: 'text' },
     { id: 'headman', label: 'Headman', type: 'text' },
   ]},
-  { id: 's4', title: 'SECTION 4: APPLICANT BANK DETAILS', fields: [
+  { id: 's4', title: 'SECTION 4: APPLICANT BANK DETAILS', note: 'Business Banking Details Only', fields: [
     { id: 'account_name', label: 'Account Name (Business Name)', type: 'text' },
     { id: 'bank_name', label: 'Bank name', type: 'text' },
     { id: 'branch', label: 'Branch name & code', type: 'text' },
