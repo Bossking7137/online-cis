@@ -47,7 +47,7 @@ export const SECTIONS = [
     { id: 'email', label: 'Email', type: 'email' },
     { id: 'res_address', label: 'Residential Address', type: 'textarea', hint: 'Where you are staying currently' },
     { id: 'occupancy', label: 'Owner / Tenant', type: 'choice', options: ['Owner','Tenant'] },
-    { id: 'years_at_address', label: 'Years at address', type: 'text' },
+    { id: 'years_at_address', label: 'Years at address', type: 'text', hint: 'For how long have you been staying at your current residential address' },
     { id: 'months_at_address', label: 'Months at address', type: 'text' },
     { id: 'home_village', label: 'Home Village', type: 'text' },
     { id: 'ward', label: 'Ward', type: 'text' },
