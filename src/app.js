@@ -112,6 +112,8 @@ function renderField(fld) {
 
   const label = el('label', { for: fld.id, text: fld.label });
   wrap.appendChild(label);
+  // Optional on-screen guideline for this field. Shown small + grey; never printed on the PDF.
+  if (fld.hint) wrap.appendChild(el('p', { class: 'hint', text: fld.hint }));
 
   if (fld.readonly) {
     // Auto-filled, locked value (e.g. today's date) — shown but not editable.

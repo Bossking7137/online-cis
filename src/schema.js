@@ -25,7 +25,7 @@ export const SECTIONS = [
   ]},
   { id: 's1', title: 'SECTION 1: APPLICANT DETAILS', fields: [
     { id: 'business_name', label: 'Applicant name (Business)', type: 'text' },
-    { id: 'uin', label: 'Registration number (UIN)', type: 'text' },
+    { id: 'uin', label: 'Registration number (UIN)', type: 'text', hint: 'CIPA Registration Number' },
     { id: 'business_address', label: 'Business postal address', type: 'textarea' },
     { id: 'consent', label: 'I have read and agree to the Borrower Reference Consent above', type: 'checkbox' },
     { id: 'auth_name', label: 'Borrower duly Authorised name', type: 'text' },
