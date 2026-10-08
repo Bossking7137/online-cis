@@ -17,7 +17,9 @@ export const CONSENT_BULLETS = [
 ];
 
 export const SECTIONS = [
-  { id: 'ref', title: 'REFEREE DETAILS', fields: [
+  { id: 'ref', title: 'REFEREE DETAILS',
+    note: 'Who referred you to Africa Origin? If none, write N/A.',
+    fields: [
     { id: 'referee_name', label: "Referee's Full Names", type: 'text' },
     { id: 'referee_contact', label: "Referee's Contact Details", type: 'text' },
   ]},
